@@ -154,3 +154,92 @@ function submitQuiz() {
 
     document.getElementById('quiz-area').innerHTML = html;
 }
+
+// 🔥 LOGIN POPUP AÇ
+function openLogin() {
+    document.getElementById("auth-popup").style.display = "flex";
+    document.getElementById("signup-popup").style.display = "none";
+}
+
+// 🔥 SIGNUP POPUP AÇ
+function openSignup() {
+    document.getElementById("signup-popup").style.display = "flex";
+    document.getElementById("auth-popup").style.display = "none";
+}
+
+// 🔥 POPUP KAPAT (tıklayınca dışına)
+// opsiyonel istersen
+window.addEventListener("click", function(e) {
+    const login = document.getElementById("auth-popup");
+    const signup = document.getElementById("signup-popup");
+
+    if (e.target === login) login.style.display = "none";
+    if (e.target === signup) signup.style.display = "none";
+});
+
+document.getElementById("open-signup").addEventListener("click", openSignup);
+document.getElementById("open-login").addEventListener("click", openLogin);
+
+document.getElementById("signup-btn").addEventListener("click", async () => {
+    const email = document.getElementById("signup-email").value;
+    const password = document.getElementById("signup-password").value;
+
+    try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        alert("Account created successfully!");
+
+        // popup kapat
+        document.getElementById("signup-popup").style.display = "none";
+    } 
+    catch (err) {
+        alert(err.message);
+    }
+});
+
+document.getElementById("login-btn").addEventListener("click", async () => {
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        alert("Login successful!");
+
+        document.getElementById("auth-popup").style.display = "none";
+
+        updateNavbar(true); // kullanıcı giriş yaptı
+    }
+    catch (err) {
+        alert(err.message);
+    }
+});
+
+function updateNavbar(isLoggedIn) {
+    const loginBtn = document.getElementById("login-nav-btn");
+    const logoutBtn = document.getElementById("logout-nav-btn");
+
+    if (isLoggedIn) {
+        loginBtn.classList.add("d-none");
+        logoutBtn.classList.remove("d-none");
+    } else {
+        loginBtn.classList.remove("d-none");
+        logoutBtn.classList.add("d-none");
+    }
+}
+
+auth.onAuthStateChanged(user => {
+    if (user) {
+        updateNavbar(true);
+    } else {
+        updateNavbar(false);
+    }
+});
+
+function logoutUser() {
+    auth.signOut()
+        .then(() => {
+            alert("Logged out!");
+            updateNavbar(false);
+        })
+        .catch(err => alert(err.message));
+}
+
